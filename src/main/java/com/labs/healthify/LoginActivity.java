@@ -12,6 +12,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.labs.healthify.repository.HealthifyRepository;
+
 public class LoginActivity extends AppCompatActivity {
     EditText edusername , edpass;
     Button btn;
@@ -30,26 +32,33 @@ public class LoginActivity extends AppCompatActivity {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*startActivity(new Intent(LoginActivity.this , HomeActivity.class));*/
-
                 String username = edusername.getText().toString();
                 String pass = edpass.getText().toString();
-                Database db = new Database(getApplicationContext(),"healthify",null,1);
 
                 if (username.length()==0 || pass.length()==0){
-                    Toast.makeText(getApplicationContext(),"Fill the Details !!!",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(),getString(R.string.fill_details),Toast.LENGTH_SHORT).show();
                 }else{
-                    if(db.login(username,pass)==1){
-                        Toast.makeText(getApplicationContext(),"Login Succes!",Toast.LENGTH_SHORT).show();
-                        SharedPreferences sharedPreferences = getSharedPreferences("shared_prefs", Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putString("username",username);
-                        editor.apply();
-                        startActivity(new Intent(LoginActivity.this , HomeActivity.class));
-                    }else{
-                        Toast.makeText(getApplicationContext(),"Invalid Credentials!",Toast.LENGTH_SHORT).show();
-                    }
+                    HealthifyRepository repository = new HealthifyRepository(getApplicationContext());
+                    repository.login(username, pass, new HealthifyRepository.LoginCallback() {
+                        @Override
+                        public void onSuccess() {
+                            runOnUiThread(() -> {
+                                Toast.makeText(getApplicationContext(),getString(R.string.login_success),Toast.LENGTH_SHORT).show();
+                                SharedPreferences sharedPreferences = getSharedPreferences("shared_prefs", Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.putString("username",username);
+                                editor.apply();
+                                startActivity(new Intent(LoginActivity.this , HomeActivity.class));
+                            });
+                        }
 
+                        @Override
+                        public void onError(String error) {
+                            runOnUiThread(() -> {
+                                Toast.makeText(getApplicationContext(),getString(R.string.invalid_credentials),Toast.LENGTH_SHORT).show();
+                            });
+                        }
+                    });
             }}
         });
         tv.setOnClickListener(new View.OnClickListener() {

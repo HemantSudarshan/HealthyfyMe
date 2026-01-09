@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">Healthify</string>
+    
+    <!-- Login Activity -->
+    <string name="fill_details">Fill the Details !!!</string>
+    <string name="login_success">Login Succes!</string>
+    <string name="invalid_credentials">Invalid Credentials!</string>
+    
+    <!-- Register Activity -->
+    <string name="registered_successfully">Registered Succesfully!!</string>
+    <string name="registration_failed">Registration failed: %1$s</string>
+    <string name="password_criteria_error">Password does not match the criteria</string>
+    <string name="password_mismatch">Password and Confirm Password doesn\'t match</string>
+    
+    <!-- Home Activity -->
+    <string name="welcome_user">Welcome %1$s</string>
 </resources>

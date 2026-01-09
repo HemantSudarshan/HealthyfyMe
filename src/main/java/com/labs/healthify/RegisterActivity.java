@@ -10,6 +10,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.labs.healthify.repository.HealthifyRepository;
+
 import org.w3c.dom.Text;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -42,22 +44,35 @@ public class RegisterActivity extends AppCompatActivity {
                 String email = edEmail.getText().toString();
                 String pass = edpass.getText().toString();
                 String conpass = edconpass.getText().toString();
-                Database db = new Database(getApplicationContext(),"healthify",null,1);
 
                 if (username.length()==0 || pass.length()==0 || email.length()==0 || conpass.length()==0){
-                    Toast.makeText(getApplicationContext(),"Fill the Details !!!",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(),getString(R.string.fill_details),Toast.LENGTH_SHORT).show();
                 }else{
                     if(pass.compareTo(conpass)==0){
-                    if(isvalid(pass)){
-                        db.register(username,email,pass);
-                        Toast.makeText(getApplicationContext(),"Registered Succesfully!!",Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(RegisterActivity.this , LoginActivity.class));
-                    }else{
-                        Toast.makeText(getApplicationContext(),"Password does not match the criteria",Toast.LENGTH_SHORT).show();
-                    }
+                        if(isvalid(pass)){
+                            HealthifyRepository repository = new HealthifyRepository(getApplicationContext());
+                            repository.register(username, email, pass, new HealthifyRepository.RegistrationCallback() {
+                                @Override
+                                public void onSuccess() {
+                                    runOnUiThread(() -> {
+                                        Toast.makeText(getApplicationContext(),getString(R.string.registered_successfully),Toast.LENGTH_SHORT).show();
+                                        startActivity(new Intent(RegisterActivity.this , LoginActivity.class));
+                                    });
+                                }
+
+                                @Override
+                                public void onError(String error) {
+                                    runOnUiThread(() -> {
+                                        Toast.makeText(getApplicationContext(),getString(R.string.registration_failed, error),Toast.LENGTH_SHORT).show();
+                                    });
+                                }
+                            });
+                        }else{
+                            Toast.makeText(getApplicationContext(),getString(R.string.password_criteria_error),Toast.LENGTH_SHORT).show();
+                        }
                     }
                     else{
-                        Toast.makeText(getApplicationContext(),"Password and Confirm Password doesn't match",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(),getString(R.string.password_mismatch),Toast.LENGTH_SHORT).show();
                     }
             }}
         });

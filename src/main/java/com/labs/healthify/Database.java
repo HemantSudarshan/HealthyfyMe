@@ -7,6 +7,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import androidx.annotation.Nullable;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 public class Database extends SQLiteOpenHelper{
@@ -31,11 +33,32 @@ public class Database extends SQLiteOpenHelper{
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
 
     }
+
+    /**
+     * Hash password using SHA-256
+     * @param password Plain text password
+     * @return Hashed password as hex string
+     */
+    private String hashPassword(String password) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(password.getBytes());
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("SHA-256 algorithm not found", e);
+        }
+    }
     public void register(String username , String email , String password){
         ContentValues cv = new ContentValues();
         cv.put("username",username);
         cv.put("email",email);
-        cv.put("password",password);
+        cv.put("password",hashPassword(password)); // Hash password before storing
         SQLiteDatabase db = getWritableDatabase();
         db.insert("users",null,cv);
         db.close();
@@ -44,7 +67,7 @@ public class Database extends SQLiteOpenHelper{
         int result=0;
         String str[]=new String[2];
         str[0]=username;
-        str[1]=password;
+        str[1]=hashPassword(password); // Hash password before comparison
         SQLiteDatabase db = getReadableDatabase();
         Cursor c = db.rawQuery("select * from users where username=? and password=?",str);
         if(c.moveToFirst()){
