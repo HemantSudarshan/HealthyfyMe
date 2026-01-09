@@ -7,33 +7,25 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.labs.healthify.databinding.ActivityLoginBinding;
 import com.labs.healthify.repository.HealthifyRepository;
 
 public class LoginActivity extends AppCompatActivity {
-    EditText edusername , edpass;
-    Button btn;
-    TextView tv;
+    private ActivityLoginBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        binding = ActivityLoginBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        edusername = findViewById(R.id.etlogname);
-        edpass = findViewById(R.id.etlogpass);
-        btn = findViewById(R.id.buttonlogin);
-        tv = findViewById(R.id.tvreg);
-
-        btn.setOnClickListener(new View.OnClickListener() {
+        binding.buttonlogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String username = edusername.getText().toString();
-                String pass = edpass.getText().toString();
+                String username = binding.etlogname.getText().toString();
+                String pass = binding.etlogpass.getText().toString();
 
                 if (username.length()==0 || pass.length()==0){
                     Toast.makeText(getApplicationContext(),getString(R.string.fill_details),Toast.LENGTH_SHORT).show();
@@ -61,7 +53,7 @@ public class LoginActivity extends AppCompatActivity {
                     });
             }}
         });
-        tv.setOnClickListener(new View.OnClickListener() {
+        binding.tvreg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(LoginActivity.this , RegisterActivity.class ));

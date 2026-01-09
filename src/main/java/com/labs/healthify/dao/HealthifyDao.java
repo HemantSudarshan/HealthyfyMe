@@ -31,6 +31,9 @@ public interface HealthifyDao {
     @Query("SELECT * FROM cart WHERE username = :username AND otype = :otype")
     LiveData<List<CartItem>> getCartItems(String username, String otype);
     
+    @Query("SELECT * FROM cart WHERE username = :username AND otype = :otype")
+    List<CartItem> getCartItemsSync(String username, String otype);
+    
     @Query("SELECT COUNT(*) FROM cart WHERE username = :username AND product = :product")
     int checkCartItem(String username, String product);
     
@@ -43,6 +46,9 @@ public interface HealthifyDao {
     
     @Query("SELECT * FROM orderplace WHERE username = :username")
     LiveData<List<Order>> getOrders(String username);
+    
+    @Query("SELECT * FROM orderplace WHERE username = :username")
+    List<Order> getOrdersSync(String username);
     
     @Query("SELECT COUNT(*) FROM orderplace WHERE username = :username AND name = :name AND address = :address AND connum = :connum AND date = :date AND time = :time")
     int checkAppointmentExists(String username, String name, String address, String connum, String date, String time);

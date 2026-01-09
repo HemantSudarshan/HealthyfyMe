@@ -145,6 +145,54 @@ public class HealthifyRepository {
         });
     }
     
+    /**
+     * Get cart data formatted as ArrayList of strings (product$price)
+     * Used by CartBuyMedActivity and CartLabActivity
+     */
+    public void getCartData(String username, String otype, CartDataCallback callback) {
+        executor.execute(() -> {
+            try {
+                List<CartItem> cartItems = dao.getCartItemsSync(username, otype);
+                java.util.ArrayList<String> formattedData = new java.util.ArrayList<>();
+                for (CartItem item : cartItems) {
+                    formattedData.add(item.getProduct() + "$" + item.getPrice());
+                }
+                callback.onSuccess(formattedData);
+            } catch (Exception e) {
+                callback.onError(e.getMessage());
+            }
+        });
+    }
+    
+    /**
+     * Get order data formatted as ArrayList of strings
+     * Format: name$address$connum$pin$date$time$amount$otype
+     * Used by OrderDetailsActivity
+     */
+    public void getOrderData(String username, OrderDataCallback callback) {
+        executor.execute(() -> {
+            try {
+                List<Order> orders = dao.getOrdersSync(username);
+                java.util.ArrayList<String> formattedData = new java.util.ArrayList<>();
+                for (Order order : orders) {
+                    formattedData.add(
+                        order.getName() + "$" +
+                        order.getAddress() + "$" +
+                        order.getConnum() + "$" +
+                        order.getPin() + "$" +
+                        order.getDate() + "$" +
+                        order.getTime() + "$" +
+                        order.getAmount() + "$" +
+                        order.getOtype()
+                    );
+                }
+                callback.onSuccess(formattedData);
+            } catch (Exception e) {
+                callback.onError(e.getMessage());
+            }
+        });
+    }
+    
     // Callback interfaces
     public interface RegistrationCallback {
         void onSuccess();
@@ -168,6 +216,16 @@ public class HealthifyRepository {
     
     public interface CheckCallback {
         void onResult(boolean exists);
+        void onError(String error);
+    }
+    
+    public interface CartDataCallback {
+        void onSuccess(java.util.ArrayList<String> data);
+        void onError(String error);
+    }
+    
+    public interface OrderDataCallback {
+        void onSuccess(java.util.ArrayList<String> data);
         void onError(String error);
     }
 }

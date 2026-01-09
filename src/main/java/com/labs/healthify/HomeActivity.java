@@ -1,7 +1,6 @@
 package com.labs.healthify;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,19 +9,22 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import com.labs.healthify.databinding.ActivityHomeBinding;
+
 public class HomeActivity extends AppCompatActivity {
+    private ActivityHomeBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
+        binding = ActivityHomeBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         SharedPreferences sharedPreferences = getSharedPreferences("shared_prefs",Context.MODE_PRIVATE);
         String username = sharedPreferences.getString("username","").toString();
         Toast.makeText(getApplicationContext(),getString(R.string.welcome_user, username),Toast.LENGTH_SHORT).show();
 
-        CardView logout = findViewById(R.id.cardlogout);
-        logout.setOnClickListener(new View.OnClickListener() {
+        binding.cardlogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -31,40 +33,35 @@ public class HomeActivity extends AppCompatActivity {
                 startActivity(new Intent(HomeActivity.this,LoginActivity.class));
             }
         });
-        CardView findoc = findViewById(R.id.cardfindoc);
-        findoc.setOnClickListener(new View.OnClickListener() {
+        binding.cardfindoc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(HomeActivity.this , FinDocActivity.class));
             }
         });
 
-        CardView labtest = findViewById(R.id.cardlabtest);
-        labtest.setOnClickListener(new View.OnClickListener() {
+        binding.cardlabtest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(HomeActivity.this , LabTestActivity.class));
             }
         });
 
-        CardView orderdetails = findViewById(R.id.cardorderdet);
-        orderdetails.setOnClickListener(new View.OnClickListener() {
+        binding.cardorderdet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(HomeActivity.this , OrderDetailsActivity.class));
             }
         });
 
-        CardView buyMed = findViewById(R.id.cardbuymedicine);
-        buyMed.setOnClickListener(new View.OnClickListener() {
+        binding.cardbuymedicine.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(HomeActivity.this , BuyMedActivity.class));
             }
         });
 
-        CardView healtharticles = findViewById(R.id.cardhealthdoc);
-        healtharticles.setOnClickListener(new View.OnClickListener() {
+        binding.cardhealthdoc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(HomeActivity.this , HealthArticlesActivity.class));

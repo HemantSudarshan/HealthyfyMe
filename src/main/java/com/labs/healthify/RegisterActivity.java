@@ -5,45 +5,33 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.labs.healthify.databinding.ActivityRegisterBinding;
 import com.labs.healthify.repository.HealthifyRepository;
 
-import org.w3c.dom.Text;
-
 public class RegisterActivity extends AppCompatActivity {
-    EditText edUsername , edEmail , edpass , edconpass;
-    Button btn;
-    TextView tv;
+    private ActivityRegisterBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register);
+        binding = ActivityRegisterBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        edUsername = findViewById(R.id.etregname);
-        edEmail = findViewById(R.id.etmail);
-        edpass = findViewById(R.id.etregpass);
-        edconpass = findViewById(R.id.etconpass);
-        btn = findViewById(R.id.buttonRegister);
-        tv = findViewById(R.id.tvlog);
-
-        tv.setOnClickListener(new View.OnClickListener() {
+        binding.tvlog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(RegisterActivity.this , LoginActivity.class ));
             }
         });
-        btn.setOnClickListener(new View.OnClickListener() {
+        binding.buttonRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String username = edUsername.getText().toString();
-                String email = edEmail.getText().toString();
-                String pass = edpass.getText().toString();
-                String conpass = edconpass.getText().toString();
+                String username = binding.etregname.getText().toString();
+                String email = binding.etmail.getText().toString();
+                String pass = binding.etregpass.getText().toString();
+                String conpass = binding.etconpass.getText().toString();
 
                 if (username.length()==0 || pass.length()==0 || email.length()==0 || conpass.length()==0){
                     Toast.makeText(getApplicationContext(),getString(R.string.fill_details),Toast.LENGTH_SHORT).show();

@@ -16,90 +16,98 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
+import com.labs.healthify.databinding.ActivityCartBuyMedBinding;
+import com.labs.healthify.repository.HealthifyRepository;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 
 public class CartBuyMedActivity extends AppCompatActivity {
+    private ActivityCartBuyMedBinding binding;
 
     HashMap<String, String> item;
     ArrayList list;
     SimpleAdapter sa;
-    TextView tvtotcost;
-    ListView lst;
     private DatePickerDialog datePickerDialog;
-    private TimePickerDialog timePickerDialog;
-    private Button dateButton, timeButton, btncheck, btnback;
     private String[][] packages={};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_cart_buy_med);
-        dateButton = findViewById(R.id.btnseldateBM);
-        btncheck = findViewById(R.id.btncheckoutBM);
-        btnback = findViewById(R.id.buttoncartBackBM);
-        tvtotcost=findViewById(R.id.tvtotcostBM);
-        lst=findViewById(R.id.listViewcartitemsBM);
+        binding = ActivityCartBuyMedBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         SharedPreferences sharedPreferences = getSharedPreferences("shared_prefs", Context.MODE_PRIVATE);
         String username =  sharedPreferences.getString("username","").toString();
 
-        Database db = new Database(getApplicationContext(),"healthify",null,1);
-        float totalAmount = 0;
-        ArrayList dbData = db.getCartData(username,"medicine");
+        HealthifyRepository repository = new HealthifyRepository(getApplicationContext());
+        repository.getCartData(username, "medicine", new HealthifyRepository.CartDataCallback() {
+            @Override
+            public void onSuccess(ArrayList dbData) {
+                runOnUiThread(() -> {
+                    float totalAmount = 0;
+                    packages = new String[dbData.size()][];
+                    for (int i=0;i<packages.length;i++){
+                        packages[i]=new String[5];
+                    }
 
-        packages= new String[dbData.size()][];
-        for (int i=0;i<packages.length;i++){
-            packages[i]=new String[5];
-        }
+                    for (int i=0;i<dbData.size();i++){
+                        String arrData = dbData.get(i).toString();
+                        String[] strData = arrData.split(java.util.regex.Pattern.quote("$"));
+                        packages[i][0]=strData[0];
+                        packages[i][4]="Cost : "+strData[1]+"/-";
+                        totalAmount=totalAmount+Float.parseFloat(strData[1]);
+                    }
 
-        for (int i=0;i<dbData.size();i++){
-            String arrData = dbData.get(i).toString();
-            String[] strData = arrData.split(java.util.regex.Pattern.quote("$"));
-            packages[i][0]=strData[0];
-            packages[i][4]="Cost : "+strData[1]+"/-";
-            totalAmount=totalAmount+Float.parseFloat(strData[1]);
-        }
+                    binding.tvtotcostBM.setText("Total Cost : "+totalAmount);
 
-        tvtotcost.setText("Total Cost : "+totalAmount);
+                    list = new ArrayList();
+                    for (int i =0; i<packages.length;i++){
+                        item = new HashMap<String,String>();
+                        item.put("line1",packages[i][0]);
+                        item.put("line2",packages[i][1]);
+                        item.put("line3",packages[i][2]);
+                        item.put("line4",packages[i][3]);
+                        item.put("line5",packages[i][4]);
+                        list.add(item);
+                    }
 
-        list = new ArrayList();
-        for (int i =0; i<packages.length;i++){
-            item = new HashMap<String,String>();
-            item.put("line1",packages[i][0]);
-            item.put("line2",packages[i][1]);
-            item.put("line3",packages[i][2]);
-            item.put("line4",packages[i][3]);
-            item.put("line5",packages[i][4]);
-            list.add(item);
-        }
+                    sa = new SimpleAdapter(CartBuyMedActivity.this,list,R.layout.multi_lines,new String[] {"line1","line2","line3","line4","line5"},
+                            new int[] {R.id.line_a,R.id.line_b,R.id.line_c,R.id.line_d,R.id.line_e});
 
-        sa = new SimpleAdapter(this,list,R.layout.multi_lines,new String[] {"line1","line2","line3","line4","line5"},
-                new int[] {R.id.line_a,R.id.line_b,R.id.line_c,R.id.line_d,R.id.line_e});
+                    binding.listViewcartitemsBM.setAdapter(sa);
+                });
+            }
 
-        lst.setAdapter(sa);
+            @Override
+            public void onError(String error) {
+                runOnUiThread(() -> {
+                    binding.tvtotcostBM.setText("Total Cost : 0");
+                });
+            }
+        });
 
-        btnback.setOnClickListener(new View.OnClickListener() {
+        binding.buttoncartBackBM.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(CartBuyMedActivity.this, BuyMedActivity.class));
             }
         });
 
-        btncheck.setOnClickListener(new View.OnClickListener() {
+        binding.btncheckoutBM.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent it = new Intent(CartBuyMedActivity.this,BuyMedBookActivity.class);
-                it.putExtra("price",tvtotcost.getText());
-                it.putExtra("date",dateButton.getText());
+                it.putExtra("price",binding.tvtotcostBM.getText());
+                it.putExtra("date",binding.btnseldateBM.getText());
                 startActivity(it);
             }
         });
 
         //datepicker
         initDatePicker();
-        dateButton.setOnClickListener(new View.OnClickListener() {
+        binding.btnseldateBM.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 datePickerDialog.show();
@@ -112,7 +120,7 @@ public class CartBuyMedActivity extends AppCompatActivity {
             @Override
             public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
                 i1 = i1 + 1;
-                dateButton.setText(i2 + "/" + i1 + "/" + i);
+                binding.btnseldateBM.setText(i2 + "/" + i1 + "/" + i);
             }
         };
         Calendar cal = Calendar.getInstance();
